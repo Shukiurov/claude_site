@@ -219,18 +219,43 @@
   background:linear-gradient(to top,rgba(10,4,0,.92) 0%,rgba(10,4,0,.6) 60%,transparent 100%);
   display:flex;flex-direction:column;justify-content:flex-end;
 }
-.po-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  font-family:'JetBrains Mono',monospace;
-  font-size:.58rem;color:var(--acc);letter-spacing:2px;text-transform:uppercase;
-  margin-bottom:10px;
+/* ── Текст «OPEN TO OPPORTUNITIES» ── */
+.po-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: #00ff87;                  /* Яркий, сочный светло-салатовый цвет */
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  
+  /* Контурная тень, чтобы буквы не терялись на светлых участках фото */
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.7);
 }
-.po-dot{width:5px;height:5px;border-radius:50%;background:var(--acc);box-shadow:0 0 7px var(--acc);animation:dp 2s infinite}
-.po-name{
-  font-family:'Cormorant Garamond',serif;font-weight:700;
-  font-size:clamp(1.8rem,3.2vw,3rem);line-height:1;
-  color:var(--b0);margin-bottom:4px;
-  animation:slideUp .8s cubic-bezier(.16,1,.3,1) both;
+
+/* ── Салатовый мигающий индикатор ── */
+.po-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00ff87;             /* Сердцевина кружка */
+  
+  /* Неоновое салатовое свечение */
+  box-shadow: 0 0 8px #00ff87, 0 0 16px rgba(0, 255, 135, 0.8);
+  
+  animation: dp 2s infinite ease-in-out;
+}
+
+.po-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 3.2vw, 3rem);
+  line-height: 1;
+  color: var(--b0);
+  margin-bottom: 4px;
+  animation: slideUp .8s cubic-bezier(.16, 1, .3, 1) both;
 }
 .po-sub{
   font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
