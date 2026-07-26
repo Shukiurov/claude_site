@@ -1,0 +1,14 @@
+<!-- ═══ DETAIL VIEW (shared) + EDIT FAB ═══ -->
+
+<!-- ════ DETAIL ════ -->
+<div id="view-detail" class="view">
+  <div class="sv-hd"><div class="w"><button class="back" id="detBack">← <span data-t="back">Back</span></button><div><div class="sv-eye" id="detEye"></div><div class="sv-ttl" id="detTitle"></div></div></div></div>
+  <div class="det-body"><div class="w">
+    <div class="det-box"><p class="det-txt" id="detTxt" contenteditable="false"></p></div>
+    <div class="det-box" id="detToolsBox" style="display:none"><div class="det-lbl" data-t="tlbl">Tools & Materials</div><div class="chips" id="detChips"></div></div>
+    <div class="det-box"><div class="det-lbl" data-t="plbl">Photos</div><div class="mosaic" id="detPhotos"></div></div>
+  </div></div>
+  <div class="pg-foot"><div class="w"><div class="pf-lbl" data-t="contactLbl">Contact</div><div class="pf-links"><a class="pf-a" href="tel:0613571645">📞 0613571645</a><a class="pf-a" href="mailto:clash84all@gmail.com">✉️ clash84all@gmail.com</a></div></div></div>
+</div>
+
+<button class="efab" id="editFab" onclick="toggleEdit()"><span id="efIco">✏</span><span data-t="editBtn">Edit</span></button>
