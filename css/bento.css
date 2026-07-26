@@ -378,4 +378,35 @@
   color:rgba(240,232,213,.5);transition:color .2s;
 }
 .cl:hover{color:var(--b0)}
+/* ══════════════════════════════════════════
+   МОБИЛЬНАЯ АДАПТАЦИЯ (экраны до 768px)
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Переводим сетку в один столбец */
+  .bento {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: auto;
+  }
+
+  /* Сбрасываем привязку к сетке */
+  .c-about, .c-tech, .c-anal, .c-dig, .c-cases, .c-photo, .c-cont {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+
+  /* 1. Поднимаем фото на самый верх и увеличиваем блок */
+  .c-photo {
+    order: -1;             /* Ставит карточку первой */
+    min-height: 520px;     /* Увеличивает высоту карточки */
+    height: 65vh;          /* Высота ~65% экрана телефона */
+  }
+
+  /* 2. Настройка фокуса фотографии */
+  .c-photo img {
+    object-fit: cover;
+    object-position: center 15%; /* Держит фокус на лице */
+  }
+}
 .cl-ic{font-size:.9rem;width:18px;text-align:center}
