@@ -7,7 +7,6 @@
   let conversationHistory = [];
   let currentLang = 'en';
   let chatBtn, chatContainer, chatMessages, chatInput, chatSendBtn, chatCloseBtn, photoCard;
-  const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
 
   const chatTranslations = {
     en: {
@@ -73,24 +72,15 @@
   }
 
   function setupEventListeners() {
+    const isMobile = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
     chatBtn.addEventListener('click', toggleChat);
-    chatBtn.addEventListener('pointerenter', () => { if (!isMobileViewport()) openChat(); });
+    chatBtn.addEventListener('pointerenter', () => { if (!isMobile()) openChat(); });
     chatCloseBtn.addEventListener('click', closeChat);
     chatSendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
     });
     chatInput.addEventListener('input', autoResizeTextarea);
-    chatInput.addEventListener('focus', () => {
-      if (isMobileViewport()) {
-        chatContainer.classList.add('chat-keyboard-open');
-      }
-    });
-    chatInput.addEventListener('blur', () => {
-      window.setTimeout(() => {
-        if (document.activeElement !== chatInput) chatContainer.classList.remove('chat-keyboard-open');
-      }, 120);
-    });
     chatMessages.addEventListener('click', (event) => {
       const suggestion = event.target.closest('.chat-suggestion');
       if (!suggestion) return;
@@ -105,12 +95,11 @@
     chatContainer.classList.add('open');
     photoCard.classList.add('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'true');
-    if (!isMobileViewport()) setTimeout(() => chatInput.focus(), 250);
+    setTimeout(() => chatInput.focus(), 250);
   }
   function closeChat() {
     isOpen = false;
     chatContainer.classList.remove('open');
-    chatContainer.classList.remove('chat-keyboard-open');
     photoCard.classList.remove('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'false');
   }
