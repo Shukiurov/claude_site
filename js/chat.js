@@ -7,7 +7,6 @@
   let conversationHistory = [];
   let currentLang = 'en';
   let chatBtn, chatContainer, chatMessages, chatInput, chatSendBtn, chatCloseBtn, photoCard;
-  let skipNextSendClick = false;
   const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
 
   const chatTranslations = {
@@ -62,7 +61,7 @@
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-area"><div class="chat-input-wrapper">
           <textarea class="chat-input" id="chatInput" rows="1"></textarea>
-          <button class="chat-send-btn" id="chatSendBtn" type="button" tabindex="-1" aria-label="Send message">➜</button>
+          <div class="chat-send-btn" id="chatSendBtn" role="button" tabindex="-1" aria-label="Send message">➜</div>
         </div></div>
       </section>`);
     chatBtn = document.getElementById('chatBtn');
@@ -77,17 +76,7 @@
     chatBtn.addEventListener('click', toggleChat);
     chatBtn.addEventListener('pointerenter', () => { if (!isMobileViewport()) openChat(); });
     chatCloseBtn.addEventListener('click', closeChat);
-    chatSendBtn.addEventListener('pointerdown', (event) => {
-      if (!isMobileViewport()) return;
-      // Send before the button can claim focus and dismiss the native keyboard.
-      event.preventDefault();
-      skipNextSendClick = true;
-      sendMessage();
-    });
-    chatSendBtn.addEventListener('click', () => {
-      if (skipNextSendClick) { skipNextSendClick = false; return; }
-      sendMessage();
-    });
+    chatSendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
     });
@@ -129,7 +118,8 @@
     chatInput.value = '';
     autoResizeTextarea();
     isProcessing = true;
-    chatSendBtn.disabled = true;
+    chatSendBtn.classList.add('is-disabled');
+    chatSendBtn.setAttribute('aria-disabled', 'true');
     showTypingIndicator();
     try {
       const answer = await callAI_API(text);
@@ -141,7 +131,8 @@
     } finally {
       removeTypingIndicator();
       isProcessing = false;
-      chatSendBtn.disabled = false;
+      chatSendBtn.classList.remove('is-disabled');
+      chatSendBtn.setAttribute('aria-disabled', 'false');
       chatInput.focus();
     }
   }
