@@ -41,8 +41,6 @@
     createChatWidget();
     setupEventListeners();
     updateChatLanguage();
-    window.visualViewport?.addEventListener('resize', syncKeyboardLayout);
-    window.visualViewport?.addEventListener('scroll', syncKeyboardLayout);
   }
 
   function createChatWidget() {
@@ -86,7 +84,6 @@
     chatInput.addEventListener('focus', () => {
       if (isMobileViewport()) {
         chatContainer.classList.add('chat-keyboard-open');
-        requestAnimationFrame(syncKeyboardLayout);
       }
     });
     chatInput.addEventListener('blur', () => {
@@ -179,12 +176,6 @@
   function removeTypingIndicator() { document.getElementById('typingIndicator')?.remove(); }
   function scrollToBottom() { requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }); }
   function autoResizeTextarea() { chatInput.style.height = 'auto'; chatInput.style.height = `${Math.min(chatInput.scrollHeight, 92)}px`; }
-  function syncKeyboardLayout() {
-    if (!chatContainer?.classList.contains('chat-keyboard-open')) return;
-    const viewport = window.visualViewport;
-    const offset = viewport ? Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop) : 0;
-    document.documentElement.style.setProperty('--chat-keyboard-offset', `${offset}px`);
-  }
 
   function updateChatLanguage() {
     const t = translation();
