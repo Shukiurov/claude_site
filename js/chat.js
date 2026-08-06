@@ -7,6 +7,7 @@
   let conversationHistory = [];
   let currentLang = 'en';
   let chatBtn, chatContainer, chatMessages, chatInput, chatSendBtn, chatCloseBtn, photoCard;
+  let skipNextSendClick = false;
   const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
 
   const chatTranslations = {
@@ -61,7 +62,7 @@
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-area"><div class="chat-input-wrapper">
           <textarea class="chat-input" id="chatInput" rows="1"></textarea>
-          <button class="chat-send-btn" id="chatSendBtn" type="button" aria-label="Send message">➜</button>
+          <button class="chat-send-btn" id="chatSendBtn" type="button" tabindex="-1" aria-label="Send message">➜</button>
         </div></div>
       </section>`);
     chatBtn = document.getElementById('chatBtn');
@@ -77,10 +78,16 @@
     chatBtn.addEventListener('pointerenter', () => { if (!isMobileViewport()) openChat(); });
     chatCloseBtn.addEventListener('click', closeChat);
     chatSendBtn.addEventListener('pointerdown', (event) => {
-      // Keep the textarea focused on touch devices so the native keyboard stays open.
-      if (isMobileViewport()) event.preventDefault();
+      if (!isMobileViewport()) return;
+      // Send before the button can claim focus and dismiss the native keyboard.
+      event.preventDefault();
+      skipNextSendClick = true;
+      sendMessage();
     });
-    chatSendBtn.addEventListener('click', sendMessage);
+    chatSendBtn.addEventListener('click', () => {
+      if (skipNextSendClick) { skipNextSendClick = false; return; }
+      sendMessage();
+    });
     chatInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
     });
