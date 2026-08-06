@@ -5,9 +5,9 @@
   let isOpen = false;
   let isProcessing = false;
   let conversationHistory = [];
-  let closeTimer;
   let currentLang = 'en';
   let chatBtn, chatContainer, chatMessages, chatInput, chatSendBtn, chatCloseBtn, photoCard;
+  const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
 
   const chatTranslations = {
     en: {
@@ -41,6 +41,8 @@
     createChatWidget();
     setupEventListeners();
     updateChatLanguage();
+    window.visualViewport?.addEventListener('resize', syncKeyboardLayout);
+    window.visualViewport?.addEventListener('scroll', syncKeyboardLayout);
   }
 
   function createChatWidget() {
@@ -73,18 +75,25 @@
   }
 
   function setupEventListeners() {
-    const isMobile = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
     chatBtn.addEventListener('click', toggleChat);
-    chatBtn.addEventListener('pointerenter', () => { if (!isMobile()) { cancelDelayedClose(); openChat(); } });
-    chatBtn.addEventListener('pointerleave', () => { if (!isMobile()) scheduleDelayedClose(); });
-    chatContainer.addEventListener('pointerenter', () => { if (!isMobile()) cancelDelayedClose(); });
-    chatContainer.addEventListener('pointerleave', () => { if (!isMobile()) scheduleDelayedClose(); });
+    chatBtn.addEventListener('pointerenter', () => { if (!isMobileViewport()) openChat(); });
     chatCloseBtn.addEventListener('click', closeChat);
     chatSendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
     });
     chatInput.addEventListener('input', autoResizeTextarea);
+    chatInput.addEventListener('focus', () => {
+      if (isMobileViewport()) {
+        chatContainer.classList.add('chat-keyboard-open');
+        requestAnimationFrame(syncKeyboardLayout);
+      }
+    });
+    chatInput.addEventListener('blur', () => {
+      window.setTimeout(() => {
+        if (document.activeElement !== chatInput) chatContainer.classList.remove('chat-keyboard-open');
+      }, 120);
+    });
     chatMessages.addEventListener('click', (event) => {
       const suggestion = event.target.closest('.chat-suggestion');
       if (!suggestion) return;
@@ -95,27 +104,18 @@
 
   function toggleChat() { isOpen ? closeChat() : openChat(); }
   function openChat() {
-    cancelDelayedClose();
     isOpen = true;
     chatContainer.classList.add('open');
     photoCard.classList.add('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'true');
-    setTimeout(() => chatInput.focus(), 250);
+    if (!isMobileViewport()) setTimeout(() => chatInput.focus(), 250);
   }
   function closeChat() {
-    cancelDelayedClose();
     isOpen = false;
     chatContainer.classList.remove('open');
+    chatContainer.classList.remove('chat-keyboard-open');
     photoCard.classList.remove('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'false');
-  }
-  function scheduleDelayedClose() {
-    cancelDelayedClose();
-    closeTimer = window.setTimeout(closeChat, 3000);
-  }
-  function cancelDelayedClose() {
-    window.clearTimeout(closeTimer);
-    closeTimer = undefined;
   }
 
   async function sendMessage() {
@@ -179,6 +179,12 @@
   function removeTypingIndicator() { document.getElementById('typingIndicator')?.remove(); }
   function scrollToBottom() { requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }); }
   function autoResizeTextarea() { chatInput.style.height = 'auto'; chatInput.style.height = `${Math.min(chatInput.scrollHeight, 92)}px`; }
+  function syncKeyboardLayout() {
+    if (!chatContainer?.classList.contains('chat-keyboard-open')) return;
+    const viewport = window.visualViewport;
+    const offset = viewport ? Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop) : 0;
+    document.documentElement.style.setProperty('--chat-keyboard-offset', `${offset}px`);
+  }
 
   function updateChatLanguage() {
     const t = translation();

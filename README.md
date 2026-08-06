@@ -1,7 +1,7 @@
 # Ali Shukiurov — Portfolio
 
 ## Структура проекта
-р
+
 ```
 ali-portfolio/
 │
