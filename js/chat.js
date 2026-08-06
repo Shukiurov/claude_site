@@ -76,6 +76,10 @@
     chatBtn.addEventListener('click', toggleChat);
     chatBtn.addEventListener('pointerenter', () => { if (!isMobileViewport()) openChat(); });
     chatCloseBtn.addEventListener('click', closeChat);
+    chatSendBtn.addEventListener('pointerdown', (event) => {
+      // Keep the textarea focused on touch devices so the native keyboard stays open.
+      if (isMobileViewport()) event.preventDefault();
+    });
     chatSendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
