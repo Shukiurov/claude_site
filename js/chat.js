@@ -41,6 +41,8 @@
     createChatWidget();
     setupEventListeners();
     updateChatLanguage();
+    window.visualViewport?.addEventListener('resize', syncMobileChatViewport);
+    window.visualViewport?.addEventListener('scroll', syncMobileChatViewport);
   }
 
   function createChatWidget() {
@@ -99,6 +101,8 @@
     chatContainer.classList.add('open');
     photoCard.classList.add('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'true');
+    window.setTimeout(syncMobileChatViewport, 0);
+    window.setTimeout(syncMobileChatViewport, 300);
     setTimeout(() => chatInput.focus(), 250);
   }
   function closeChat() {
@@ -107,6 +111,7 @@
     photoCard.classList.remove('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('mobile-chat-open');
+    chatContainer.style.removeProperty('--chat-viewport-height');
     if (chatContainer.parentElement !== photoCard) photoCard.append(chatContainer);
   }
 
@@ -173,6 +178,13 @@
   function removeTypingIndicator() { document.getElementById('typingIndicator')?.remove(); }
   function scrollToBottom() { requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }); }
   function autoResizeTextarea() { chatInput.style.height = 'auto'; chatInput.style.height = `${Math.min(chatInput.scrollHeight, 92)}px`; }
+  function syncMobileChatViewport() {
+    if (!isOpen || !isMobileViewport() || chatContainer.parentElement !== document.body) return;
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    // visualViewport.height ends precisely at the top of the Android/iOS keyboard.
+    chatContainer.style.setProperty('--chat-viewport-height', `${Math.round(viewport.height)}px`);
+  }
 
   function updateChatLanguage() {
     const t = translation();
