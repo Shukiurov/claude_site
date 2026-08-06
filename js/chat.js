@@ -7,6 +7,7 @@
   let conversationHistory = [];
   let currentLang = 'en';
   let chatBtn, chatContainer, chatMessages, chatInput, chatSendBtn, chatCloseBtn, photoCard;
+  const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
 
   const chatTranslations = {
     en: {
@@ -40,8 +41,6 @@
     createChatWidget();
     setupEventListeners();
     updateChatLanguage();
-    window.visualViewport?.addEventListener('resize', syncMobileKeyboardPanel);
-    window.visualViewport?.addEventListener('scroll', syncMobileKeyboardPanel);
   }
 
   function createChatWidget() {
@@ -74,28 +73,14 @@
   }
 
   function setupEventListeners() {
-    const isMobile = () => window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
     chatBtn.addEventListener('click', toggleChat);
-    chatBtn.addEventListener('pointerenter', () => { if (!isMobile()) openChat(); });
+    chatBtn.addEventListener('pointerenter', () => { if (!isMobileViewport()) openChat(); });
     chatCloseBtn.addEventListener('click', closeChat);
     chatSendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
     });
     chatInput.addEventListener('input', autoResizeTextarea);
-    chatInput.addEventListener('focus', () => {
-      if (!isMobile()) return;
-      chatContainer.classList.add('chat-keyboard-open');
-      window.setTimeout(syncMobileKeyboardPanel, 80);
-      window.setTimeout(syncMobileKeyboardPanel, 300);
-    });
-    chatInput.addEventListener('blur', () => {
-      window.setTimeout(() => {
-        if (document.activeElement === chatInput) return;
-        chatContainer.classList.remove('chat-keyboard-open');
-        clearKeyboardPanelPosition();
-      }, 150);
-    });
     chatMessages.addEventListener('click', (event) => {
       const suggestion = event.target.closest('.chat-suggestion');
       if (!suggestion) return;
@@ -106,6 +91,7 @@
 
   function toggleChat() { isOpen ? closeChat() : openChat(); }
   function openChat() {
+    if (isMobileViewport() && chatContainer.parentElement !== document.body) document.body.append(chatContainer);
     isOpen = true;
     chatContainer.classList.add('open');
     photoCard.classList.add('photo-chat-open');
@@ -115,10 +101,9 @@
   function closeChat() {
     isOpen = false;
     chatContainer.classList.remove('open');
-    chatContainer.classList.remove('chat-keyboard-open');
-    clearKeyboardPanelPosition();
     photoCard.classList.remove('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'false');
+    if (chatContainer.parentElement !== photoCard) photoCard.append(chatContainer);
   }
 
   async function sendMessage() {
@@ -182,24 +167,6 @@
   function removeTypingIndicator() { document.getElementById('typingIndicator')?.remove(); }
   function scrollToBottom() { requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }); }
   function autoResizeTextarea() { chatInput.style.height = 'auto'; chatInput.style.height = `${Math.min(chatInput.scrollHeight, 92)}px`; }
-  function syncMobileKeyboardPanel() {
-    if (!chatContainer?.classList.contains('chat-keyboard-open')) return;
-    const viewport = window.visualViewport;
-    const anchor = document.querySelector('.c-about');
-    if (!viewport || !anchor) return;
-
-    // Anchor the compact keyboard view at the top edge of the next card.
-    const anchorTop = anchor.getBoundingClientRect().top;
-    const minimumHeight = 170;
-    const top = Math.max(8, Math.min(anchorTop, viewport.height - minimumHeight));
-    const height = Math.max(minimumHeight, viewport.height - top);
-    chatContainer.style.setProperty('--chat-keyboard-top', `${Math.round(top)}px`);
-    chatContainer.style.setProperty('--chat-keyboard-height', `${Math.round(height)}px`);
-  }
-  function clearKeyboardPanelPosition() {
-    chatContainer?.style.removeProperty('--chat-keyboard-top');
-    chatContainer?.style.removeProperty('--chat-keyboard-height');
-  }
 
   function updateChatLanguage() {
     const t = translation();
