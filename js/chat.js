@@ -91,7 +91,10 @@
 
   function toggleChat() { isOpen ? closeChat() : openChat(); }
   function openChat() {
-    if (isMobileViewport() && chatContainer.parentElement !== document.body) document.body.append(chatContainer);
+    if (isMobileViewport()) {
+      if (chatContainer.parentElement !== document.body) document.body.append(chatContainer);
+      document.body.classList.add('mobile-chat-open');
+    }
     isOpen = true;
     chatContainer.classList.add('open');
     photoCard.classList.add('photo-chat-open');
@@ -103,6 +106,7 @@
     chatContainer.classList.remove('open');
     photoCard.classList.remove('photo-chat-open');
     chatBtn.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('mobile-chat-open');
     if (chatContainer.parentElement !== photoCard) photoCard.append(chatContainer);
   }
 
